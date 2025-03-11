@@ -23,7 +23,6 @@
         ctx.fillRect(100, 50, 50, 50);
         ctx.fillRect(0, 50, 50, 50);
         ctx.fillRect(300, 50, 50, 50);
-        ctx.fillRect(400, 50, 50, 50);
 
         ctx.fillRect(150, 100, 50, 50);
         ctx.fillRect(50, 100, 50, 50);
@@ -34,7 +33,6 @@
         ctx.fillRect(100, 150, 50, 50);
         ctx.fillRect(0, 150, 50, 50);
         ctx.fillRect(300, 150, 50, 50);
-        ctx.fillRect(400, 150, 50, 50);
 
         ctx.fillRect(150, 200, 50, 50);
         ctx.fillRect(50, 200, 50, 50);
@@ -45,8 +43,7 @@
         ctx.fillRect(100, 250, 50, 50);
         ctx.fillRect(0, 250, 50, 50);
         ctx.fillRect(300, 250, 50, 50);
-        ctx.fillRect(400, 250, 50, 50);
-
+   
         ctx.fillRect(150, 300, 50, 50);
         ctx.fillRect(50, 300, 50, 50);
         ctx.fillRect(250, 300, 50, 50);
@@ -56,16 +53,30 @@
         ctx.fillRect(100, 350, 50, 50);
         ctx.fillRect(0, 350, 50, 50);
         ctx.fillRect(300, 350, 50, 50);
-        ctx.fillRect(400, 350, 50, 50);
+
 
         ctx.fillRect(150, 400, 50, 50);
         ctx.fillRect(50, 400, 50, 50);
         ctx.fillRect(250, 400, 50, 50);
         ctx.fillRect(350, 400, 50, 50);
   
-        ctx.font = "50px Arial"; // Font size and family
+        ctx.font = "45px Arial"; // Font size and family
         ctx.fillStyle = "black";  // Text color
-        ctx.fillText("♜	", 0, 100);  // x, y coordinates
+        let blackPieceY = 90;
+        ctx.fillText("♜	", 0, blackPieceY);  // x, y coordinates
+        ctx.fillText("♞	", 50, blackPieceY);  // x, y coordinates
+        ctx.fillText("♞	", 300, blackPieceY);  // x, y coordinates
+        ctx.fillText("♝	", 250, blackPieceY);  // x, y coordinates
+        ctx.fillText("♝	", 100, blackPieceY);  // x, y coordinates
+        ctx.fillText("♛	", 150, blackPieceY);  // x, y coordinates
+        ctx.fillText("♜	", 350, blackPieceY);  // x, y coordinates
+        ctx.fillText("♚	", 200, blackPieceY);  // x, y coordinates
+        let i = 0;
+        blackpieceX = 0
+while (i < 8) {
+    ctx.fillText("♟", blackpieceX , blackPieceY+50);
+    blackpieceX = blackpieceX + 50
+    i++;}
     </script>
 </body>
 </html>
