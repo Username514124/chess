@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw a Black Square</title>
+</head>
+<body>
+    <canvas id="myCanvas" width="1920" height="1080"></canvas>
+    <script>
+        let chessBoard = [
+    ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜' ],
+    ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+    ['', '', '', '', '', '', '', '',],
+    ['', '', '', '', '', '', '', '',],
+    ['', '', '', '', '', '', '', '',],
+    ['', '', '', '', '', '', '', '',],
+    ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+    ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖' ]
+];
+    var canvas = document.getElementById('myCanvas');
+        
+        // Get the 2D drawing context
+        var ctx = canvas.getContext('2d');
+        
+        // Set the fill color to black
+        ctx.fillStyle = '#996600';
+        
+        // Draw the square (starting at (50, 50) with a side length of 100)
+        ctx.fillRect(200, 50, 50, 50);
+        console.log(chessBoard[0][3])
+
+</script>
+</body>
+</html>
