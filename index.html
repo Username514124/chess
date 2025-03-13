@@ -63,6 +63,9 @@
         ctx.font = "45px Arial"; // Font size and family
         ctx.fillStyle = "black";  // Text color
         let blackPieceY = 90;
+        let whitePieceY = 440
+        let whitePawnY = 340
+
         ctx.fillText("♜	", 0, blackPieceY);  // x, y coordinates
         ctx.fillText("♞	", 50, blackPieceY);  // x, y coordinates
         ctx.fillText("♞	", 300, blackPieceY);  // x, y coordinates
@@ -73,10 +76,24 @@
         ctx.fillText("♚	", 200, blackPieceY);  // x, y coordinates
         let i = 0;
         blackpieceX = 0
+        whitePieceX = 0
 while (i < 8) {
     ctx.fillText("♟", blackpieceX , blackPieceY+50);
     blackpieceX = blackpieceX + 50
     i++;}
+    i = 0
+while (i < 8) {
+    ctx.fillText("♙", whitePieceX , whitePawnY+50);
+    whitePieceX = whitePieceX + 50
+    i++;}
+    ctx.fillText("♖	", 0, whitePieceY);  // x, y coordinates
+        ctx.fillText("♘	", 50, whitePieceY);  // x, y coordinates
+        ctx.fillText("♘	", 300, whitePieceY);  // x, y coordinates
+        ctx.fillText("♗	", 250, whitePieceY);  // x, y coordinates
+        ctx.fillText("♗	", 100, whitePieceY);  // x, y coordinates
+        ctx.fillText("♕	", 150, whitePieceY);  // x, y coordinates
+        ctx.fillText("♖	", 350, whitePieceY);  // x, y coordinates
+        ctx.fillText("♔	", 200, whitePieceY);  // x, y coordinates
     </script>
 </body>
 </html>
