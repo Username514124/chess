@@ -3,33 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draw a Black Square</title>
+    <title>Draw a Chessboard</title>
 </head>
 <body>
-    <canvas id="myCanvas" width="1920" height="1080"></canvas>
+    <canvas id="myCanvas" width="400" height="400"></canvas>
     <script>
+        // Chessboard setup
         let chessBoard = [
-    ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜' ],
-    ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
-    ['', '', '', '', '', '', '', '',],
-    ['', '', '', '', '', '', '', '',],
-    ['', '', '', '', '', '', '', '',],
-    ['', '', '', '', '', '', '', '',],
-    ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
-    ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖' ]
-];
-    var canvas = document.getElementById('myCanvas');
-        
-        // Get the 2D drawing context
-        var ctx = canvas.getContext('2d');
-        
-        // Set the fill color to black
-        ctx.fillStyle = '#996600';
-        
-        // Draw the square (starting at (50, 50) with a side length of 100)
-        ctx.fillRect(200, 50, 50, 50);
-        console.log(chessBoard[0][3])
+            ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
+            ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', ''],
+            ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+            ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
+        ];
 
-</script>
+        var canvas = document.getElementById('myCanvas');
+        var ctx = canvas.getContext('2d');
+
+        const squareSize = 50;  // Size of each square on the board
+        const boardSize = 8;    // 8x8 board
+
+        // draw the chessboard
+        function drawBoard() {
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    let x = col * squareSize;
+                    let y = row * squareSize;
+
+                    if ((row + col) % 2 === 0) {
+                        ctx.fillStyle = '#FFFFFF';  // Light square
+                    } else {
+                        ctx.fillStyle = '#996600';  // Dark square
+                    }
+
+                    // Draw the square
+                    ctx.fillRect(x, y, squareSize, squareSize);
+                }
+            }
+        }
+
+        // draw pieces
+        function drawPieces() {
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    let piece = chessBoard[row][col];
+                    if (piece) {
+                        ctx.font = '45px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = 'black';  // Color of the pieces
+                        ctx.fillText(piece, col * squareSize + squareSize / 2, row * squareSize + squareSize / 2);
+                    }
+                }
+            }
+        }
+
+        function updateBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear Board
+            drawBoard();  // Draw the board
+            drawPieces(); // Draw the pieces
+        }
+        updateBoard();
+
+        function clickedPiece (event) {}
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientX - rect.top;
+
+        const col = Math.floor(x / squareSize);
+        const row = Math.floor(y / squareSize);
+
+        
+
+        
+
+    </script>
 </body>
 </html>
