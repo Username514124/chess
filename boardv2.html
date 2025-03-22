@@ -3,12 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draw a Chessboard</title>
+    <title>Chessboard</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #FFFFFF;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="myCanvas" width="400" height="400"></canvas>
+    <canvas id="myCanvas" width="800" height="800"></canvas>
     <script>
-        // Chessboard setup
+        // holding location of the pieces
         let chessBoard = [
             ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
             ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
@@ -20,13 +30,26 @@
             ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']
         ];
 
-        var canvas = document.getElementById('myCanvas');
-        var ctx = canvas.getContext('2d');
+        function getPieceColor(piece) {
+            if (piece === '') return '';  // No piece at all
+            if (['♙', '♖', '♘', '♗', '♕', '♔'].includes(piece)) {
+                return 'white';  // White pieces
+            } else {
+                return 'black';  // Black pieces
+            }
+        }
 
-        const squareSize = 50;  // Size of each square on the board
+        let selectedPiece = null;
+        let offsetX = 0, offsetY = 0;
+        let turn = 'white';
+
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const squareSize = 100;  // square size
         const boardSize = 8;    // 8x8 board
 
-        // draw the chessboard
+        // function to draw the chessboard
         function drawBoard() {
             for (let row = 0; row < boardSize; row++) {
                 for (let col = 0; col < boardSize; col++) {
@@ -34,7 +57,7 @@
                     let y = row * squareSize;
 
                     if ((row + col) % 2 === 0) {
-                        ctx.fillStyle = '#FFFFFF';  // Light square
+                        ctx.fillStyle = '#f4f4f4';  // Light square
                     } else {
                         ctx.fillStyle = '#996600';  // Dark square
                     }
@@ -45,13 +68,13 @@
             }
         }
 
-        // draw pieces
+        // Draw pieces
         function drawPieces() {
             for (let row = 0; row < boardSize; row++) {
                 for (let col = 0; col < boardSize; col++) {
                     let piece = chessBoard[row][col];
                     if (piece) {
-                        ctx.font = '45px Arial';
+                        ctx.font = '90px Arial';
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         ctx.fillStyle = 'black';  // Color of the pieces
@@ -66,19 +89,218 @@
             drawBoard();  // Draw the board
             drawPieces(); // Draw the pieces
         }
+
         updateBoard();
 
-        function clickedPiece (event) {}
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientX - rect.top;
+        // Allows the user to drag and move pieces
+        canvas.addEventListener('mousedown', function(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
 
-        const col = Math.floor(x / squareSize);
-        const row = Math.floor(y / squareSize);
+            // Get clicked row and column
+            const col = Math.floor(x / squareSize);
+            const row = Math.floor(y / squareSize);
 
-        
+            // Check if there's a piece at the clicked position
+            if (chessBoard[row][col] !== '') {
+                selectedPiece = { piece: chessBoard[row][col], row: row, col: col };
+                offsetX = x - col * squareSize;
+                offsetY = y - row * squareSize;
+            }
+                            // Only allow moving if it's the current player's turn
+                            if (pieceColor === turn) {
+                    selectedPiece = { piece: clickedPiece, row: row, col: col };
+                    offsetX = x - col * squareSize;
+                    offsetY = y - row * squareSize;
+                }
+        });
 
-        
+        // Update the position of the piece while dragging
+        canvas.addEventListener('mousemove', function(event) {
+            if (selectedPiece) {
+                const rect = canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                // Redraw the board and pieces
+                updateBoard();
+
+                // Draw the selected piece following the mouse
+                ctx.font = '45px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'black';  // Color of the piece
+                ctx.fillText(selectedPiece.piece, x - offsetX, y - offsetY);
+            }
+        });
+
+        canvas.addEventListener('mouseup', function(event) {
+            if (selectedPiece) {
+                const rect = canvas.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                // Get the destination row and column
+                const col = Math.floor(x / squareSize);
+                const row = Math.floor(y / squareSize);
+
+                // Check if the move is valid
+                if (isValidMove(selectedPiece.piece, selectedPiece.row, selectedPiece.col, row, col)) {
+                    // If the destination is empty or occupied by an opponent's piece, move the piece
+                    const destinationPiece = chessBoard[row][col];
+                    if (destinationPiece === '' || getPieceColor(destinationPiece) !== getPieceColor(selectedPiece.piece)) {
+                        // Move the piece
+                        chessBoard[row][col] = selectedPiece.piece;  // Place the piece at the destination
+                        chessBoard[selectedPiece.row][selectedPiece.col] = '';  // Clear the original square
+                    }
+                }
+
+                // Reset selected piece
+                selectedPiece = null;
+                updateBoard();
+            }
+        });
+
+        // Function to check if a move is valid
+        function isValidMove(piece, fromRow, fromCol, toRow, toCol) {
+            const dx = Math.abs(toCol - fromCol);
+            const dy = Math.abs(toRow - fromRow);
+
+            // Get the destination piece
+            const destinationPiece = chessBoard[toRow][toCol];
+
+            // If the destination square is occupied by a piece of the same color, return false
+            if (destinationPiece !== '' && getPieceColor(destinationPiece) === getPieceColor(piece)) {
+                return false;  // Can't move to a square occupied by a piece of the same color
+            }
+
+            // Add the existing movement logic for each piece
+            switch (piece) {
+                case '♙':  // White pawn
+                    if (fromCol === toCol && dy === 1 && toRow < fromRow && chessBoard[toRow][toCol] === '') {
+                        return true;  // Single move forward
+                    }
+
+                    if (fromCol === toCol && dy === 2 && fromRow === 6 && chessBoard[fromRow - 1][fromCol] === '') {
+                        return true;  // First double move for white pawn
+                    }
+
+                    if (dx === 1 && dy === 1 && toRow < fromRow && chessBoard[toRow][toCol] !== '' && getPieceColor(chessBoard[toRow][toCol]) !== getPieceColor(piece)) {
+                        return true;  // Capturing diagonally (only captures enemy pieces)
+                    }
+                    return false;
+
+                case '♟':  // Black pawn
+                    if (fromCol === toCol && dy === 1 && toRow > fromRow && chessBoard[toRow][toCol] === '') {
+                        return true;  // Single move forward
+                    }
+
+                    if (fromCol === toCol && dy === 2 && fromRow === 1 && chessBoard[fromRow + 1][fromCol] === '') {
+                        return true;  // First double move for black pawn
+                    }
+
+                    if (dx === 1 && dy === 1 && toRow > fromRow && chessBoard[toRow][toCol] !== '' && getPieceColor(chessBoard[toRow][toCol]) !== getPieceColor(piece)) {
+                        return true;  // Capturing diagonally (only captures enemy pieces)
+                    }
+                    return false;
+
+                case '♘':  // White Knight
+                case '♞':  // Black Knight
+                    if ((dx === 2 && dy === 1) || (dx === 1 && dy === 2)) {
+                        return true;
+                    }
+                    return false;
+
+                // Add other piece logic (Rook, Bishop, Queen, King) here...
+
+                default:
+                    return false;
+                    case '♗':  // White Bishop
+        case '♝':  // Black Bishop
+            if (dx === dy) {
+                const stepX = toCol > fromCol ? 1 : -1;
+                const stepY = toRow > fromRow ? 1 : -1;
+
+                let x = fromCol + stepX;
+                let y = fromRow + stepY;
+
+                while (x !== toCol && y !== toRow) {
+                    if (chessBoard[y][x] !== '') {
+                        return false;  // Blocked by another piece
+                    }
+                    x += stepX;
+                    y += stepY;
+                }
+                return true;
+            }
+            return false;
+
+        case '♖':  // White Rook
+        case '♜':  // Black Rook
+            if (fromRow === toRow || fromCol === toCol) {
+                const stepX = toCol > fromCol ? 1 : (toCol < fromCol ? -1 : 0);
+                const stepY = toRow > fromRow ? 1 : (toRow < fromRow ? -1 : 0);
+
+                let x = fromCol + stepX;
+                let y = fromRow + stepY;
+
+                while (x !== toCol || y !== toRow) {
+                    if (chessBoard[y][x] !== '') {
+                        return false;  // Blocked by another piece
+                    }
+                    x += stepX;
+                    y += stepY;
+                }
+                return true;
+            }
+            return false;
+
+        case '♕':  // White Queen
+        case '♛':  // Black Queen
+            if (fromRow === toRow || fromCol === toCol) {
+                const stepX = toCol > fromCol ? 1 : (toCol < fromCol ? -1 : 0);
+                const stepY = toRow > fromRow ? 1 : (toRow < fromRow ? -1 : 0);
+
+                let x = fromCol + stepX;
+                let y = fromRow + stepY;
+
+                while (x !== toCol || y !== toRow) {
+                    if (chessBoard[y][x] !== '') {
+                        return false;  // Blocked by another piece
+                    }
+                    x += stepX;
+                    y += stepY;
+                }
+                return true;
+            }
+
+            if (dx === dy) {
+                const stepX = toCol > fromCol ? 1 : -1;
+                const stepY = toRow > fromRow ? 1 : -1;
+
+                let x = fromCol + stepX;
+                let y = fromRow + stepY;
+
+                while (x !== toCol && y !== toRow) {
+                    if (chessBoard[y][x] !== '') {
+                        return false;  // Blocked by another piece
+                    }
+                    x += stepX;
+                    y += stepY;
+                }
+                return true;
+            }
+            return false;
+
+        case '♔':  // White King
+        case '♚':  // Black King
+            if (dx <= 1 && dy <= 1) {
+                return true;
+            }
+            return false;
+    }
+}
 
     </script>
 </body>
