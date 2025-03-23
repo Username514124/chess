@@ -13,12 +13,31 @@
             margin: 0;
             background-color: #FFFFFF;
         }
+        #message {
+            font-size: 24px;
+            margin-bottom: 20px;
+            margin-left: -100px; /* Adjust this value as needed */
+        }
+        canvas {
+            border: 1px solid #000;
+        }
     </style>
 </head>
 <body>
+    <div id="message">Chess Game</div>
     <canvas id="myCanvas" width="800" height="800"></canvas>
     <script>
-        // holding location of the pieces
+
+            // Function to display the message
+            function showMessage() {
+            document.getElementById('message').style.display = 'block';
+        }
+
+        // Function to hide the message
+        function hideMessage() {
+            document.getElementById('message').style.display = 'none';
+        }
+
         let chessBoard = [
             ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
             ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
@@ -38,9 +57,7 @@
                 return 'black';  // Black pieces
             }
         }
-
         
-
         let selectedPiece = null;
         let offsetX = 0, offsetY = 0;
         let turn = 'white';
@@ -54,6 +71,8 @@
         let canWhiteKingCastleRight = true;
         let canBlackKingCastleLeft = true;
         let canBlackKingCastleRight = true;
+        let true1 = true;
+        let false1 = false;
 
         if (hasWhiteKingMoved === true) {
              canWhiteKingCastleLeft = false;
@@ -64,6 +83,17 @@
 }
         if (hasWhiteRightRookMoved === true) {
             canWhiteKingCastleRight = false;
+}
+
+if (hasBlackKingMoved === true) {
+             canBlackKingCastleLeft = false;
+             canBlackKingCastleRight = false;
+}
+        if (hasBlackLeftRookMoved === true) {
+            canBlackKingCastleLeft = false;
+}
+        if (hasBlackRightRookMoved === true) {
+            canBlackKingCastleRight = false;
 }
 
 function updateWhiteCastlingAvailability() {
@@ -81,36 +111,24 @@ function updateBlackCastlingAvailability() {
 }
 
 function canWhiteCastleLeft() {
-    // Check if the king or the left rook has moved
+    // King or rook moved?
     if (hasWhiteKingMoved || hasWhiteLeftRookMoved) return false;
-
-    // Check if there are any pieces between the king and the left rook
-    for (let col = 1; col < 4; col++) {  // Check squares between King and Left Rook (columns 1 to 3)
-        if (chessBoard[7][col] !== '') {  // Check if any piece is in the way
-            return false;
-        }
-    }
+    // Are the squares between the king and rook empty?
+    if (chessBoard[7][1] !== '' || chessBoard[7][2] !== '' || chessBoard[7][3] !== '') return false;
     return true;
 }
 
-// Function to check if the White King can castle to the right
 function canWhiteCastleRight() {
-    // Check if the king or the right rook has moved
     if (hasWhiteKingMoved || hasWhiteRightRookMoved) return false;
+    // Are the squares between the king and rook empty?
+    if (chessBoard[7][5] !== '' || chessBoard[7][6] !== '') return false;
 
-    // Check if there are any pieces between the king and the right rook
-    for (let col = 5; col < 7; col++) {  // Check squares between King and Right Rook (columns 5 to 6)
-        if (chessBoard[7][col] !== '') {  // Check if any piece is in the way
-            return false;
-        }
-    }
     return true;
 }
 
 function canBlackCastleLeft() {
     // Check if the king or the left rook has moved
     if (hasBlackKingMoved || hasBlackLeftRookMoved) return false;
-
     // Check if there are any pieces between the king and the left rook
     for (let col = 1; col < 4; col++) {  // Check squares between King and Left Rook (columns 1 to 3)
         if (chessBoard[0][col] !== '') {  // Check if any piece is in the way
@@ -132,6 +150,27 @@ function canBlackCastleRight() {
         }
     }
     return true;
+}
+
+function checkKingsPresence(board) {
+    let whiteKingPresent = false;
+    let blackKingPresent = false;
+
+    for (let row = 0; row < board.length; row++) {
+        for (let col = 0; col < board[row].length; col++) {
+            if (board[row][col] === '♔') {
+                whiteKingPresent = true;
+            } else if (board[row][col] === '♚') {
+                blackKingPresent = true;
+            }
+        }
+    }
+
+    if (!whiteKingPresent) {
+        alert("Black wins! White king is no longer on the board.");
+    } else if (!blackKingPresent) {
+        alert("White wins! Black king is no longer on the board.");
+    }
 }
 
         const canvas = document.getElementById('myCanvas');
@@ -275,7 +314,7 @@ function canBlackCastleRight() {
     if (destinationPiece !== '' && getPieceColor(destinationPiece) === pieceColor) {
         return false;
     }
-
+    
 
             // Add the existing movement logic for each piece
             switch (piece) {
@@ -362,7 +401,7 @@ function canBlackCastleRight() {
                 } else if (fromCol === 7) {
                     hasWhiteRightRookMoved = true;  // Right rook has moved
                 }
-
+                turn = (turn === 'white') ? 'black' : 'white';
                 return true;
             }
             return false;
@@ -395,7 +434,7 @@ function canBlackCastleRight() {
                 } else if (fromCol === 7) {
                     hasBlackRightRookMoved = true;  // Right rook has moved
                 }
-
+                turn = (turn === 'white') ? 'black' : 'white';
                 return true;
             }
             return false;
@@ -444,87 +483,271 @@ function canBlackCastleRight() {
         hasWhiteKingMoved = true;  // Mark the king as moved
         return true;
     }
-    case '♔':  // White King
-    // Regular one-square move (non-castling)
-    if (dx <= 1 && dy <= 1) {
-        hasWhiteKingMoved = true;  // Mark the king as moved
+
+    if (dx === 2 && dy === 0 && turn === 'white' && toCol === 2) {
+    if (!hasWhiteKingMoved && !hasWhiteLeftRookMoved &&
+        chessBoard[7][1] === '' && chessBoard[7][2] === '' && chessBoard[7][3] === '' &&
+        !canBlackPieceMoveTo(7, 4) && !canBlackPieceMoveTo(7, 3) && !canBlackPieceMoveTo(7, 2)) {
+        chessBoard[7][2] = '♔';  // King to c1
+        chessBoard[7][4] = '';    // Clear e1
+        chessBoard[7][3] = '♖';  // Rook to d1
+        chessBoard[7][0] = '';    // Clear a1
+        hasWhiteKingMoved = true;
+        hasWhiteLeftRookMoved = true;
+        updateWhiteCastlingAvailability();
+        turn = 'black';
         return true;
     }
-    
-    // Queenside castling for white
-    // Queenside castling for white
-    if (dx === 2 && dy === 0 && turn === 'white') {
-        if (toCol === 2 && canWhiteCastleLeft()) {
-            // Perform queenside castling
-            chessBoard[7][2] = '♔';  // King moves to column 2
-            chessBoard[7][4] = '';    // Clear the original position
-            chessBoard[7][3] = '♖';  // Left rook moves to column 3
-            chessBoard[7][0] = '';    // Clear the original position of the rook
-            hasWhiteKingMoved = true;
-            hasWhiteLeftRookMoved = true;
-            updateWhiteCastlingAvailability();
-            turn = 'black';
-            return true;
-        }
-    }
-
-    // Kingside castling for white
-    if (dx === 2 && dy === 0 && turn === 'white') {
-        if (toCol === 6 && canWhiteCastleRight()) {
-            // Perform kingside castling
-            chessBoard[7][6] = '♔';  // King moves to column 6
-            chessBoard[7][4] = '';    // Clear the original position
-            chessBoard[7][5] = '♖';  // Right rook moves to column 5
-            chessBoard[7][7] = '';    // Clear the original position of the rook
-            hasWhiteKingMoved = true;
-            hasWhiteRightRookMoved = true;
-            updateWhiteCastlingAvailability();
-            turn = 'black';
-            return true;
-        }
-    }
-    
-    return false;
-Explanation
-    case '♚':  // Black King
-    if (dx <= 1 && dy <= 1) {
-        hasBlackKingMoved === true
-        return true;
-    }
-    if (dx === 2 && dy === 0 && turn === 'black') {
-        if (toCol === 2 && canBlackCastleLeft()) {
-            // Perform queenside castling
-            chessBoard[0][2] = '♚';  // King moves to column 2
-            chessBoard[0][4] = '';    // Clear the original position
-            chessBoard[0][3] = '♖';  // Left rook moves to column 3
-            chessBoard[0][0] = '';    // Clear the original position of the rook
-            hasBlackKingMoved = true;
-            hasBlackLeftRookMoved = true;
-            updateBlackCastlingAvailability();  // Update castling availability
-            turn = 'white';
-            return true;
-        }
-    }
-
-    // Kingside castling for black
-    if (dx === 2 && dy === 0 && turn === 'black') {
-        if (toCol === 6 && canBlackCastleRight()) {
-            // Perform kingside castling
-            chessBoard[0][6] = '♚';  // King moves to column 6
-            chessBoard[0][4] = '';    // Clear the original position
-            chessBoard[0][5] = '♖';  // Right rook moves to column 5
-            chessBoard[0][7] = '';    // Clear the original position of the rook
-            hasBlackKingMoved = true;
-            hasBlackRightRookMoved = true;
-            updateBlackCastlingAvailability();  // Update castling availability
-            turn = 'white';
-            return true;
-        }
-    }
-
     return false;
 }
+
+if (dx === 2 && dy === 0 && turn === 'white' && toCol === 6) {
+    if (!hasWhiteKingMoved && !hasWhiteRightRookMoved &&
+        chessBoard[7][5] === '' && chessBoard[7][6] === '' &&
+        !canBlackPieceMoveTo(7, 4) && !canBlackPieceMoveTo(7, 5) && !canBlackPieceMoveTo(7, 6)) {
+        // Execute the castling move
+        chessBoard[7][6] = '♔';  // Move king to g1
+        chessBoard[7][4] = '';    // Clear e1
+        chessBoard[7][5] = '♖';  // Move rook to f1
+        chessBoard[7][7] = '';    // Clear h1
+        
+        // Update movement flags
+        hasWhiteKingMoved = true;
+        hasWhiteRightRookMoved = true;
+        
+        // Update castling availability (if you have such a function)
+        updateWhiteCastlingAvailability();
+        
+        // Switch turn to Black
+        turn = 'black';
+        return true;  // Move successful
+    }
+    return false;  // Move invalid
+}
+
+case '♚':  // Black King
+    // Regular one-square move (non-castling)
+    if (dx <= 1 && dy <= 1) {
+        hasBlackKingMoved = true;  // Mark the king as moved
+        return true;
+    }
+
+    // Queenside (long) castling
+    if (dx === 2 && dy === 0 && turn === 'black' && toCol === 2) {
+        if (!hasBlackKingMoved && !hasBlackLeftRookMoved &&
+            chessBoard[0][1] === '' && chessBoard[0][2] === '' && chessBoard[0][3] === '' &&
+            !canWhitePieceMoveTo(0, 4) && !canWhitePieceMoveTo(0, 3) && !canWhitePieceMoveTo(0, 2)) {
+            // Perform the castling move
+            chessBoard[0][2] = '♚';  // King to c8
+            chessBoard[0][4] = '';   // Clear e8
+            chessBoard[0][3] = '♜';  // Rook to d8
+            chessBoard[0][0] = '';   // Clear a8
+            hasBlackKingMoved = true;
+            hasBlackLeftRookMoved = true;
+            updateBlackCastlingAvailability();
+            turn = 'white';
+            return true;
         }
+        return false;
+    }
+
+    // Kingside (short) castling
+    if (dx === 2 && dy === 0 && turn === 'black' && toCol === 6) {
+        if (!hasBlackKingMoved && !hasBlackRightRookMoved &&
+            chessBoard[0][5] === '' && chessBoard[0][6] === '' &&
+            !canWhitePieceMoveTo(0, 4) && !canWhitePieceMoveTo(0, 5) && !canWhitePieceMoveTo(0, 6)) {
+            // Perform the castling move
+            chessBoard[0][6] = '♚';  // King to g8
+            chessBoard[0][4] = '';   // Clear e8
+            chessBoard[0][5] = '♜';  // Rook to f8
+            chessBoard[0][7] = '';   // Clear h8
+            hasBlackKingMoved = true;
+            hasBlackRightRookMoved = true;
+            updateBlackCastlingAvailability();
+            turn = 'white';
+            return true;
+        }
+        return false;
+    }
+    return false;
+            }
+        }
+
+
+        function canBlackPieceMoveTo(row, col) {
+    const blackPieces = ['♟', '♜', '♞', '♝', '♛', '♚'];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = chessBoard[r][c];
+            if (blackPieces.includes(piece)) {
+                if (isValidAttack(piece, r, c, row, col)) {
+                    return true; // Square is under attack by a black piece
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+function canWhitePieceMoveTo(row, col) {
+    const whitePieces = ['♙', '♖', '♘', '♗', '♕', '♔'];
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = chessBoard[r][c];
+            if (whitePieces.includes(piece)) {
+                if (isValidAttackWhite(piece, r, c, row, col)) {
+                    return true; // Square is under attack by a black piece
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
+function isValidAttack(piece, fromRow, fromCol, toRow, toCol) {
+    const dx = Math.abs(toCol - fromCol);
+    const dy = Math.abs(toRow - fromRow);
+
+    switch (piece) {
+        case '♟': // Black pawn
+            return dx === 1 && dy === 1 && toRow > fromRow;
+
+        case '♞': // Black knight
+            return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
+
+        case '♝': // Black bishop
+            if (dx === dy) {
+                const stepX = toCol > fromCol ? 1 : -1;
+                const stepY = toRow > fromRow ? 1 : -1;
+                let x = fromCol + stepX;
+                let y = fromRow + stepY;
+                while (x !== toCol && y !== toRow) {
+                    if (chessBoard[y][x] !== '') {
+                        return false;
+                    }
+                    x += stepX;
+                    y += stepY;
+                }
+                return true;
+            }
+            return false;
+
+        case '♜': // Black rook
+            if (dx === 0 || dy === 0) {
+                const stepX = toCol > fromCol ? 1 : (toCol < fromCol ? -1 : 0);
+                const stepY = toRow > fromRow ? 1 : (toRow < fromRow ? -1 : 0);
+                let x = fromCol + stepX;
+                let y = fromRow + stepY;
+                while (x !== toCol || y !== toRow) {
+                    if (chessBoard[y][x] !== '') {
+                        return false;
+                    }
+                    x += stepX;
+                    y += stepY;
+                }
+                return true;
+            }
+            return false;
+
+        case '♛': // Black queen
+            if (dx === 0 || dy === 0 || dx === dy) {
+                const stepX = dx === 0 ? 0 : (toCol > fromCol ? 1 : -1);
+                const stepY = dy === 0 ? 0 : (toRow > fromRow ? 1 : -1);
+                let x = fromCol + stepX;
+                let y = fromRow + stepY;
+                while (x !== toCol || y !== toRow) {
+                    if (chessBoard[y][x] !== '') {
+                        return false;
+                    }
+                    x += stepX;
+                    y += stepY;
+                }
+                return true;
+            }
+            return false;
+
+        case '♚': // Black king
+            return dx <= 1 && dy <= 1;
+
+        default:
+            return false;
+    }
+}
+
+function isValidAttackWhite(piece, fromRow, fromCol, toRow, toCol) {
+    const dx = Math.abs(toCol - fromCol);
+    const dy = Math.abs(toRow - fromRow);
+
+switch (piece) {
+    case '♙': // White pawn
+        return dx === 1 && dy === 1 && toRow < fromRow;
+
+    case '♘': // White knight
+        return (dx === 2 && dy === 1) || (dx === 1 && dy === 2);
+
+    case '♗': // White bishop
+        if (dx === dy) {
+            const stepX = toCol > fromCol ? 1 : -1;
+            const stepY = toRow > fromRow ? 1 : -1;
+            let x = fromCol + stepX;
+            let y = fromRow + stepY;
+            while (x !== toCol && y !== toRow) {
+                if (chessBoard[y][x] !== '') {
+                    return false;
+                }
+                x += stepX;
+                y += stepY;
+            }
+            return true;
+        }
+        return false;
+
+    case '♖': // White rook
+        if (dx === 0 || dy === 0) {
+            const stepX = toCol > fromCol ? 1 : (toCol < fromCol ? -1 : 0);
+            const stepY = toRow > fromRow ? 1 : (toRow < fromRow ? -1 : 0);
+            let x = fromCol + stepX;
+            let y = fromRow + stepY;
+            while (x !== toCol || y !== toRow) {
+                if (chessBoard[y][x] !== '') {
+                    return false;
+                }
+                x += stepX;
+                y += stepY;
+            }
+            return true;
+        }
+        return false;
+
+    case '♕': // White queen
+        if (dx === 0 || dy === 0 || dx === dy) {
+            const stepX = dx === 0 ? 0 : (toCol > fromCol ? 1 : -1);
+            const stepY = dy === 0 ? 0 : (toRow > fromRow ? 1 : -1);
+            let x = fromCol + stepX;
+            let y = fromRow + stepY;
+            while (x !== toCol || y !== toRow) {
+                if (chessBoard[y][x] !== '') {
+                    return false;
+                }
+                x += stepX;
+                y += stepY;
+            }
+            return true;
+        }
+        return false;
+
+    case '♔': // White king
+        return dx <= 1 && dy <= 1;
+
+    default:
+        return false;
+}
+}
+
+
+
     </script>
 </body>
 </html>
